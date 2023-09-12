@@ -1,34 +1,36 @@
 import socket
 import threading
 
-nickname = input("escolha um nome: ")
+nickname = input("escolha um nome: ") #define nickname como o nome escolhido
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('127.0.0.1', 55555))
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #AF_INET: define o endereço ipv4, SOCK_STREAM: define o tipo de socket como TCP
+client.connect(('127.0.0.1', 55555)) #define o endereço IP se conectando nele
 
-def recieve():
+def recieve(): #função para fazer o esquema de receber mensagem
     while True:
-        try:
-            message = client.recv(1024).decode('utf-8')
-            if message == 'NICK':
-                client.send(nickname.encode('utf-8'))
+        try: #tenta exectar
+            message = client.recv(1024).decode('utf-8') #recebe uma mensagem mandada pelo servidor
+            if message == 'NICK': #caso a mensagem recebida pelo servidor for nick ele envia o nickname
+                client.send(nickname.encode('utf-8')) #envia o nickname 
             else:
-                print(message)
-        except:
+                print(message) #se nao receber nada diferente ele printa a mensagem recebida pelo servidor
+        except: #caso nao conseguir executar
             print('um erro aconteceu')
-            client.close()
-            break
+            client.close() #fecha o cliente
+            break #para o codigo
 
-def write():
+def write(): #esquema para poder escrever mensagens
     while True:
-        message = f'{nickname}: {input("")}'
-        client.send(message.encode('utf-8'))
+        message = f'{nickname}: {input("")}' #escreve a mensagem
+        client.send(message.encode('utf-8')) #manda a mensagem pro servidor
 
-recieve_thread = threading.Thread(target=recieve)
-recieve_thread.start()
+recieve_thread = threading.Thread(target=recieve) #cria uma thread para o recieve
+recieve_thread.start() #starta a thread
 
-write_threat = threading.Thread(target=write)
-write_threat.start()
+write_threat = threading.Thread(target=write) # cria uma thread para o write
+write_threat.start() #starta a thread
+
+#a thread é utilizada nesse caso para que as funções de receber e de escrever estejam rodando ao mesmo tempo
 
 
 
