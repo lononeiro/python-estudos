@@ -4,50 +4,54 @@ import threading
 host  = '127.0.0.1' #local host
 port = 55555
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #AF_INET: define o endereço ipv4, SOCK_STREAM: define o tipo de socket como TCP
 server.bind((host, port))
 server.listen()
 
 
-clients = []
-nicknames = []
+clients = [] #lista dos clientes
+nicknames = [] #lista dos nomes 
 
-def broadcast(message):
+def broadcast(message): #função para enviar a mensagem recebida de um cliente para todos os clientes(broadcast)
     for client in clients:
         client.send(message)
 
 
-def handle(client):
+def handle(client): #função para lidar com o clientes
     while True:
         try:
-            message = client.recv(1024)
-            broadcast(message)
-        except:
-            index = client.index(client)
-            clients.remove(client)
-            nickname = nicknames(index)
-            broadcast(f'{nickname} deixou o chat' .encode('utf-8'))
-            nicknames.remove(nickname)
+            message = client.recv(1024) #define 'message' como a mensagem que receber 
+            broadcast(message) #vai mandar essa mensagem para todos os clientes
+        except: #caso nao consiga
+            index = client.index(client) #vai definir o codigo do cliente na lista como "index"
+            clients.remove(client) #remove da lista
+            nickname = nicknames(index) #trasforma o nickname no numero do index que ta na lista de nomes
+            broadcast(f'{nickname} deixou o chat' .encode('utf-8')) #manda para todos os clientes que tal cliente deixou o chat
+            nicknames.remove(nickname) #remove o nickname da lista de nicknames
             break
 
-def recieve():
+def recieve(): #função para receber mensagens
     while True:
         client, address = server.accept()
-        print(f"conectado com {str(address)} ")
+        print(f"conectado com {str(address)} ") #escreve apenas no servidor que tal ip conectou no servidor    
 
-        client.send('NICK'.encode('utf-8'))
-        nickname = client.recv(1024).decode('utf-8')
+        client.send('NICK'.encode('utf-8')) manda o codigo NICK pro cliente que conectou, para que 
+                                            o esquema de definir o nome do cliente funcione
+
+        nickname = client.recv(1024).decode('utf-8') #recebe o nome
         
 
-        nicknames.append(nickname)
-        clients.append(client)
+        nicknames.append(nickname) #adiciona o nome na lista nicknames
+        clients.append(client) adiciona o cliente na lista de clientes
 
-        print(f'nickname do cliente é {nickname}')
-        broadcast(f'{nickname} entrou no chat!!!'.encode('utf-8'))
-        client.send('conectado ao servidor'.encode('utf-8'))
+        print(f'nickname do cliente é {nickname}') #printa no servidor o nome do cliente
+        broadcast(f'{nickname} entrou no chat!!!'.encode('utf-8')) #manda para todos os clientes que um novo cliente conectou com o nome
+                                                                    dele
+        client.send('conectado ao servidor'.encode('utf-8')) #manda pro cliente avisando que ele conectou no servidor
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+        #faz uma thread pra função de lidar com o cliente
 
 print('server está escutando')
 recieve()
