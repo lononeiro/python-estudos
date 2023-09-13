@@ -1,28 +1,49 @@
 import socket
 import threading
+email = (input('digite seu email: '))
+senha = (input('digite sua senha: '))
+nickname = input("escolha um nome: ")
 
-nickname = input("escolha um nome: ") #define nickname como o nome escolhido
+email = str(email)
+senha = str(senha)
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #AF_INET: define o endereço ipv4, SOCK_STREAM: define o tipo de socket como TCP
-client.connect(('127.0.0.1', 55555)) #define o endereço IP
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('127.0.0.1', 55555))
 
-def recieve(): #função para fazer o esquema de receber mensagem
+stop_thread = False
+
+def recieve():
     while True:
+        global stop_thread
+        if stop_thread:
+            break
         try:
-            message = client.recv(1024).decode('utf-8') #recebe uma mensagem mandada pelo servidor
-            if message == 'NICK': #caso a mensagem recebida pelo servidor for nick ele envia o nickname
-                client.send(nickname.encode('utf-8')) #envia o nickname 
+            message = client.recv(1024).decode('utf-8')
+            if message == 'NICK':
+                client.send(nickname.encode('utf-8'))
+
+            elif message == 'EMAIL':
+                client.send(email.encode('utf-8'))
+            elif message == 'NOT':
+                print('email inválido, não foi possivel conectar.')
+                stop_thread = True
+            elif message == 'PASS':
+                stop_thread = True
+
             else:
-                print(message) #se nao receber nada diferente ele printa a mensagem recebida pelo servidor
+                print(message)
+
         except:
             print('um erro aconteceu')
-            client.close()
+            client.close()  
             break
 
 def write():
     while True:
         message = f'{nickname}: {input("")}'
         client.send(message.encode('utf-8'))
+
+
 
 recieve_thread = threading.Thread(target=recieve)
 recieve_thread.start()
