@@ -24,6 +24,10 @@ def recieve():
 
             elif message == 'EMAIL':
                 client.send(email.encode('utf-8'))
+                
+            elif message == 'SENHA':
+                client.send(senha.encode('utf-8'))
+
             elif message == 'NOT':
                 print('email inválido, não foi possivel conectar.')
                 stop_thread = True
