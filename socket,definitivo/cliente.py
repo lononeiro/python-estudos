@@ -1,5 +1,6 @@
 import socket
 import threading
+import sys
 email = (input('digite seu email: '))
 senha = (input('digite sua senha: '))
 nickname = input("escolha um nome: ")
@@ -30,9 +31,14 @@ def recieve():
 
             elif message == 'NOT':
                 print('email inválido, não foi possivel conectar.')
+                client.close()
                 stop_thread = True
+                
             elif message == 'PASS':
+                print('senha errada, desconectando...')
+                client.close()
                 stop_thread = True
+                
 
             else:
                 print(message)
