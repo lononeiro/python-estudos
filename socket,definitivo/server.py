@@ -8,7 +8,7 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
 server.listen()
 
-comandos_lista = ['/cadastrar', '/emails']
+comandos_lista = ['/cadastrar', '/emails', '/clientes']
 clients = []
 nicknames = []
 usuarios_dicionario = {}
@@ -20,34 +20,8 @@ def add_dicionario(email, senha):
     for email, senha in zip(emails, senhas):
         usuarios_dicionario[email] = senha
 
+add_dicionario(emails, senhas)
 
-def verificar_email(email):
-    while True:
-        nickname, client, senha = server.accept()
-        if email in emails:
-                
-                    nicknames.append(nickname)
-                    clients.append(client)
-                    print('sucesso')
-
-                    for email in usuarios_dicionario:
-                        senha_correspondente = usuarios_dicionario[email]
-                        print('deucverto')
-                        if senha == senha_correspondente:
-                        
-                            nicknames.append(nickname)
-                            clients.append(client)
-                            print('sucesso')
-                        else:
-                            client.send('PASS'.encode('utf-8'))
-                            client.close()
-                            continue                
-
-        else:
-            client.send('NOT'.encode('utf-8'))
-            client.close()
-            continue
-    
 
 
 def comandos():
@@ -62,11 +36,16 @@ def comandos():
             senhas.append(senha_nova)
             add_dicionario(email_novo, senha_nova)
             print(usuarios_dicionario)
-            #numero = emails.index(email)
+
         elif comando == '/emails':
             print()
             for email in emails:
                 print(email)
+        
+        elif comando == '/clientes':
+            for nomes in nicknames:
+                print(f'> {nomes}')
+        
         elif comando == '/comandos':
             print()
             for comando_lista in comandos_lista:
@@ -78,6 +57,7 @@ def broadcast(message):
     for client in clients:
         client.send(message)
 
+
 def handle(client):
     while True:
         try:
@@ -87,10 +67,10 @@ def handle(client):
             index = clients.index(client)
             clients.remove(client)
             nickname = nicknames[index]
-            #email = emails[index]
             broadcast(f'{nickname} deixou o chat' .encode('utf-8'))
             nicknames.remove(nickname)
             break
+
 
 def recieve():
     while True:
@@ -110,7 +90,24 @@ def recieve():
         senha = str(senha)
  
 
-        verificar_email(email)
+
+        if email in emails:
+                    
+                    
+                    senha_correspondente = usuarios_dicionario[email]
+                    if senha == senha_correspondente:
+                        
+                        nicknames.append(nickname)
+                        clients.append(client)
+                    else:
+                        client.send('PASS'.encode('utf-8'))
+                        client.close()
+                        continue                
+
+        else:
+            client.send('NOT'.encode('utf-8'))
+            client.close()
+            continue
 
         
         print(f'nickname do cliente é {nickname}')
@@ -127,4 +124,5 @@ admin_thread.start()
         
 
 print('server está escutando')
+print('/comandos para ver os comandos.')
 recieve()
