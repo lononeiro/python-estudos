@@ -11,8 +11,43 @@ server.listen()
 comandos_lista = ['/cadastrar', '/emails']
 clients = []
 nicknames = []
-emails = ['lucassgs58@gmail.com']
-senhas = []
+usuarios_dicionario = {}
+emails = ['lucassgs58@gmail.com', 'bimbimbambam@gmail.com', '123' ]
+senhas = ['123lucas', '123', '123']
+
+
+def add_dicionario(email, senha):
+    for email, senha in zip(emails, senhas):
+        usuarios_dicionario[email] = senha
+
+
+def verificar_email(email):
+    while True:
+        nickname, client, senha = server.accept()
+        if email in emails:
+                
+                    nicknames.append(nickname)
+                    clients.append(client)
+                    print('sucesso')
+
+                    for email in usuarios_dicionario:
+                        senha_correspondente = usuarios_dicionario[email]
+                        print('deucverto')
+                        if senha == senha_correspondente:
+                        
+                            nicknames.append(nickname)
+                            clients.append(client)
+                            print('sucesso')
+                        else:
+                            client.send('PASS'.encode('utf-8'))
+                            client.close()
+                            continue                
+
+        else:
+            client.send('NOT'.encode('utf-8'))
+            client.close()
+            continue
+    
 
 
 def comandos():
@@ -25,6 +60,8 @@ def comandos():
             senha_nova = input('senha: ')
             emails.append(email_novo)
             senhas.append(senha_nova)
+            add_dicionario(email_novo, senha_nova)
+            print(usuarios_dicionario)
             #numero = emails.index(email)
         elif comando == '/emails':
             print()
@@ -62,32 +99,18 @@ def recieve():
 
         client.send('NICK'.encode('utf-8'))
         nickname = client.recv(1024).decode('utf-8')
-      
+        nickname = str(nickname)
+
         client.send('EMAIL'.encode('utf-8'))
         email = client.recv(1024).decode('utf-8')
+        email = str(email)
+
+        client.send('SENHA'.encode('utf-8'))
+        senha = client.recv(1024).decode('utf-8')
+        senha = str(senha)
  
-        if email in emails:
-            password_index = emails.index(email)
-            print(password_index)
-            senha = client.recv(1024).decode('utf-8')
-            nicknames.append(nickname)
-            clients.append(client)
-            print('sucesso')
-            print(senha)
-            #if senha == senhas(password_index):
 
-                #nicknames.append(nickname)
-                #clients.append(client)
-                #print('sucesso')
-            #else:
-                #client.send('PASS'.encode('utf-8'))
-                #client.close()
-                #continue                
-
-        else:
-            client.send('NOT'.encode('utf-8'))
-            client.close()
-            continue
+        verificar_email(email)
 
         
         print(f'nickname do cliente é {nickname}')
