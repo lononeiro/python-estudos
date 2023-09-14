@@ -1,6 +1,5 @@
 import socket
 import threading
-import sys
 email = (input('digite seu email: '))
 senha = (input('digite sua senha: '))
 nickname = input("escolha um nome: ")
