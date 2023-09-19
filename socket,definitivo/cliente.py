@@ -1,8 +1,20 @@
 import socket
 import threading
+
+
 email = (input('digite seu email: '))
 senha = (input('digite sua senha: '))
 nickname = input("escolha um nome: ")
+
+
+loop = 1
+while loop == 1:
+    if nickname != 'administrador':
+        loop = 2
+    else:
+        print('nome inválido escolha outro.')
+        nickname = input('escolha seu nome: ')
+
 
 email = str(email)
 senha = str(senha)
@@ -24,6 +36,11 @@ def recieve():
 
             elif message == 'EMAIL':
                 client.send(email.encode('utf-8'))
+            
+            elif message == 'CADASTRADO':
+                print('esse email já está cadastrado')
+                client.close()
+                stop_thread = True
                 
             elif message == 'SENHA':
                 client.send(senha.encode('utf-8'))
