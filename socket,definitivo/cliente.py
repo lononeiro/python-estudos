@@ -1,11 +1,11 @@
 import socket
 import threading
 
-
+print('-' *10, 'login', '-'*10)
 email = (input('digite seu email: '))
 senha = (input('digite sua senha: '))
 nickname = input("escolha um nome: ")
-
+print('-'*27)
 
 loop = 1
 while loop == 1:
@@ -20,7 +20,7 @@ email = str(email)
 senha = str(senha)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('127.0.0.1', 55555))
+client.connect(('127.0.0.1', 666))
 
 stop_thread = False
 
@@ -47,6 +47,7 @@ def recieve():
 
             elif message == 'NOT':
                 print('email inválido, não foi possivel conectar.')
+
                 client.close()
                 stop_thread = True
                 
@@ -68,7 +69,6 @@ def write():
     while True:
         message = f'{nickname}: {input("")}'
         client.send(message.encode('utf-8'))
-
 
 
 recieve_thread = threading.Thread(target=recieve)
