@@ -1,9 +1,9 @@
 import socket
 import threading
-import bcrypt
+import hashlib
 
 host  = '127.0.0.1' #local host
-port = 55555
+port = 666
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
@@ -13,7 +13,6 @@ nome_administrador = 'administrador'
 
 #listas e dicionarios:
 usuarios_dicionario = {}
-comandos_exclamacao_dicionário = {}
 comandos_lista = ['/cadastrar', '/emails', '/clientes', '/mensagem, /emails_cadastrados']
 
 clients = []
@@ -33,11 +32,13 @@ def comandos():
             email_novo = input('email: ')
             senha_nova = input('senha: ')
             emails.append(email_novo)
-            senha_nova = senha_nova.encode('utf-8')
-            senha_encriptografada = bcrypt.hashpw(senha_nova, bcrypt.gensalt(10))
 
+            md5 = hashlib.md5()
+            md5.update(senha_nova.encode('utf-8'))
+            senha_encriptografada = md5.hexdigest()
             senhas.append(senha_encriptografada)
-            print(senhas)
+
+            print(senhas)   
             add_dicionario(email_novo, senha_nova)
 
         elif comando == '/emails':
@@ -53,6 +54,7 @@ def comandos():
             print()
             for comando_lista in comandos_lista:
                 print(comando_lista)
+                print()
             print()
 
         elif comando == '/mensagem':
@@ -67,11 +69,7 @@ def comandos():
              for email_cadastrado in emails_cadastrados:
                   print(email_cadastrado)
         
-        elif comando == '/comando_novo':
-             entrada = input('digite o que deverá ser escrito após !: ')
-             saida = input('digite o que o comando irá printar: ')
-             comandos_exclamacao_dicionário[entrada] = saida
-             print(comandos_exclamacao_dicionário)
+
 
 
 
@@ -100,7 +98,6 @@ def handle(client):
         try:
             message = client.recv(1024)
             broadcast(message)  
-
         except:
             index = clients.index(client)
             clients.remove(client)
@@ -110,7 +107,8 @@ def handle(client):
             break
 
 #função para receber e interpretar mensagens
-def recieve():
+print()
+def receba():
     while True:
         client, address = server.accept()
         print(f"conectado com {str(address)} ")
@@ -128,16 +126,18 @@ def recieve():
             client.send('CADASTRADO'.encode('utf-8'))
         else:
             client.send('SENHA'.encode('utf-8'))
-            senha = bcrypt.hashpw(client.recv(1024), bcrypt.gensalt(10))
-            senha = str(senha)
-            print(senha)
+            senha = client.recv(1024)
+            md5 = hashlib.md5()
+            md5.update(senha)
+            senha_encriptografada = md5.hexdigest()
+
+
         #verifica se o email digitado existe dentro da lista de emails
         if email in emails:
                     
                     #verifica se a senha digitada está correta
                     senha_correspondente = usuarios_dicionario[email]
-                    #senha_correspondente = bcrypt.hashpw(senha_nova, senha_encriptografada)
-                    if senha == senha_correspondente:
+                    if senha_encriptografada == senha_correspondente:
                         
                         nicknames.append(nickname)
                         clients.append(client)
@@ -166,4 +166,4 @@ admin_thread.start()
 
 print('server está escutando')
 print('/comandos para ver os comandos.')
-recieve()
+receba()
